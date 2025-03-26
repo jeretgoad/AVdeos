@@ -39,4 +39,4 @@ const FormField = ({ title, value, placeholder, handleChangeText, otherStyles, .
   )
 }
 
-export default FormField
+export default FormField;
