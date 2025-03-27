@@ -1,8 +1,8 @@
-import { Image, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
-import { useState } from 'react';
+import { Image, FlatList, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
+import { React, useState, useRef } from 'react';
 import { icons } from '../constants';
 import * as Animatable from "react-native-animatable";
-import { VideoView } from "expo-video"; 
+import { VideoView, useVideoPlayer } from "expo-video"; 
 
 const zoomIn = {
   0: {
@@ -24,26 +24,30 @@ const zoomOut = {
 
 const TrendingItem = ({ activeItem, item }) => {
   const [play, setPlay] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(null);
+  console.log("URL: " + item.video);
+    const player = useVideoPlayer(videoUrl, (player) => {
+        player.loop = false;
+        player.play();
+    });
 
   return (
-    <Animatable.View className="mr-5" animation={activeItem === item.$id ? zoomIn : zoomOut} duration={750}>
-      {play ? (
+    <Animatable.View className="mr-5" animation={activeItem === item.$id ? zoomIn : zoomOut} duration={250}>
+      {play && videoUrl ? (
         <VideoView
-          source={{ uri: item.video }}
-          className="w-52 h-72 rounded-[33px] mt-3 bg-white/10"
-          useNativeControls
-          resizeMode="contain"
-          onPlaybackStatusUpdate={(status) => {
-            if (status.didJustFinish) {
-              setPlay(false);
-            }
-          }}
+          style={styles.video}
+          player={player}
+          allowsFullscreen
+          allowsPictureInPicture
         />
       ) : (
           <TouchableOpacity 
             className="relative flex justify-center items-center"
             activeOpacity={0.7}
-            onPress={() => setPlay(true)}
+            onPress={() => {
+              setPlay(true); 
+              setVideoUrl({uri: `https://player.vimeo.com/video/949582778?h=d60220d68d.mp4`})
+            }}
           >
             <ImageBackground 
               source={{ uri: item.thumbnail }}
@@ -52,7 +56,7 @@ const TrendingItem = ({ activeItem, item }) => {
             />
 
             <Image 
-              source={icons.play}
+              source={icons.play} 
               className="w-12 h-12 absolute"
               resizeMode='contain'
             />
@@ -66,7 +70,7 @@ const Trending = ({ posts }) => {
   const [activeItem, setActiveItem] = useState(posts[1]);
 
   const viewableItemsChanged = ({ viewableItems }) => {
-    if(viewableItems.length > 0) {
+    if(viewableItems.length > 0) { 
       setActiveItem(viewableItems[0].key);
     }
   };
@@ -81,11 +85,22 @@ const Trending = ({ posts }) => {
         )}
         onViewableItemsChanged={viewableItemsChanged}
         viewabilityConfig={{
-          itemVisiblePercentThreshold: 70
+          itemVisiblePercentThreshold: 0,
         }}
-        contentOffset={{ x: 170, y: 50 }}
+        contentOffset={{ x: 170 }}
     />
   );
 };
+
+
+const styles = StyleSheet.create({
+  video: {
+      width: 208,
+      height: 288,
+      borderRadius: 33,
+      marginTop: 12,
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  }
+});
 
 export default Trending;
