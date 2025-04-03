@@ -1,5 +1,5 @@
-import { View, Text, FlatList, Image, RefreshControl, Alert } from 'react-native'
-import { useEffect, useState } from 'react'
+import { View, Text, FlatList, Image, RefreshControl } from 'react-native'
+import { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { images } from '../../constants';
@@ -36,7 +36,9 @@ const Home = () => {
         data={posts}
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
-          <VideoCard video={item} />
+          <VideoCard 
+            video={item}
+          />
         )}
         ListHeaderComponent={() => (
           <View className="flex my-6 px-4 space-y-6">
@@ -72,7 +74,9 @@ const Home = () => {
             subtitle="Be the first to post a video"
           />
         )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} 
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        } 
       />
     </SafeAreaView>
   )

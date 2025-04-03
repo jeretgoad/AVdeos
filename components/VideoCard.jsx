@@ -1,17 +1,23 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native'
-import { useState } from 'react'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useState } from 'react'
 import { icons } from '../constants'
+import { VideoView, useVideoPlayer } from "expo-video"; 
 
 const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avatar }} }) => {
     const [play, setPlay] = useState(false);
 
-
+    const [videoUrl, setVideoUrl] = useState(null);
+      
+    const player = useVideoPlayer(videoUrl, (player) => {
+        player.loop = false;
+        player.play();
+      });
 
     return (
-        <View className="flex-col items-center px-4 mb-14">
-            <View className="flex-row gap-3 items-start">
-                <View className="justify-center items-center flex-row flex-1">
-                    <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
+        <View className="flex flex-col items-center px-4 mb-14">
+            <View className="flex flex-row gap-3 items-start">
+                <View className="flex justify-center items-center flex-row flex-1">
+                    <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5 flex">
                         <Image
                             source={{ uri: avatar }}
                             className="w-full h-full rounded-lg"
@@ -35,12 +41,22 @@ const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avata
             </View>
 
             {play ? (
-                <Text className="text-white">Playing</Text>
+                <VideoView
+                    style={styles.video}
+                    player={player}
+                    allowsFullscreen
+                    allowsPictureInPicture
+                    useNativeControls={true}
+                    VideoContentFit = "contain"
+                />
             ) : (
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    onPress={() => setPlay(true)}
-                    className="w-full h-60 rounded-xl mt-3 relative justify-center items-center"
+                    onPress={() => {
+                        setPlay(true);
+                        setVideoUrl({uri: `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`});
+                    }}
+                    className="w-full h-60 rounded-xl mt-3 relative flex justify-center items-center"
                 >
                     <Image
                         source={{ uri: thumbnail }}
@@ -56,6 +72,16 @@ const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avata
             )}
         </View>
   )
-}
+};
+
+const styles = StyleSheet.create({
+    video: {
+        width: "100%",
+        height: 240,
+        borderRadius: 16,
+        marginTop: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    }
+  });
 
 export default VideoCard

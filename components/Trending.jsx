@@ -1,7 +1,8 @@
 import { Image, FlatList, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
-import { React, useState, useRef } from 'react';
+import { React, useState } from 'react';
 import { icons } from '../constants';
 import * as Animatable from "react-native-animatable";
+import { useEvent } from 'expo';
 import { VideoView, useVideoPlayer } from "expo-video"; 
 
 const zoomIn = {
@@ -24,12 +25,22 @@ const zoomOut = {
 
 const TrendingItem = ({ activeItem, item }) => {
   const [play, setPlay] = useState(false);
+  
   const [videoUrl, setVideoUrl] = useState(null);
-  console.log("URL: " + item.video);
-    const player = useVideoPlayer(videoUrl, (player) => {
-        player.loop = false;
-        player.play();
-    });
+  
+  const player = useVideoPlayer(videoUrl, (player) => {
+    player.loop = false;
+    player.play();
+    if(player.playToEnd){
+      setPlay(false);
+    } else {
+      setPlay(true);
+    }
+  });
+
+  const { isPlaying } = useEvent(player, 'playingChange', { 
+    isPlaying: player.playing, 
+  });
 
   return (
     <Animatable.View className="mr-5" animation={activeItem === item.$id ? zoomIn : zoomOut} duration={250}>
@@ -46,7 +57,7 @@ const TrendingItem = ({ activeItem, item }) => {
             activeOpacity={0.7}
             onPress={() => {
               setPlay(true); 
-              setVideoUrl({uri: `https://player.vimeo.com/video/949582778?h=d60220d68d.mp4`})
+              setVideoUrl({uri: `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4`})
             }}
           >
             <ImageBackground 
@@ -96,7 +107,7 @@ const Trending = ({ posts }) => {
 const styles = StyleSheet.create({
   video: {
       width: 208,
-      height: 288,
+      height: 290,
       borderRadius: 33,
       marginTop: 12,
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
