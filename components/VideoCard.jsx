@@ -2,16 +2,19 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { icons } from '../constants'
 import { VideoView, useVideoPlayer } from "expo-video"; 
+import { ResizeMode, Video } from "expo-av"; 
 
 const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avatar }} }) => {
     const [play, setPlay] = useState(false);
 
+    {/* for "expo-video as expo-av is deprecated"
     const [videoUrl, setVideoUrl] = useState(null);
       
     const player = useVideoPlayer(videoUrl, (player) => {
         player.loop = false;
         player.play();
       });
+    */}
 
     return (
         <View className="flex flex-col items-center px-4 mb-14">
@@ -41,21 +44,22 @@ const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avata
             </View>
 
             {play ? (
-                <VideoView
+                <Video
                     style={styles.video}
-                    player={player}
-                    allowsFullscreen
-                    allowsPictureInPicture
-                    useNativeControls={true}
-                    VideoContentFit = "contain"
-                />
+                    source={{ uri: video }}
+                    resizeMode={ResizeMode.CONTAIN}
+                    useNativeControls
+                    shouldPlay
+                    onPlaybackStatusUpdate={(status) => {
+                    if (status.didJustFinish) {
+                        setPlay(false);
+                    }
+                }}
+              />
             ) : (
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    onPress={() => {
-                        setPlay(true);
-                        setVideoUrl({uri: `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`});
-                    }}
+                    onPress={() => setPlay(true)}
                     className="w-full h-60 rounded-xl mt-3 relative flex justify-center items-center"
                 >
                     <Image

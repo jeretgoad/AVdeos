@@ -3,7 +3,8 @@ import { React, useState } from 'react';
 import { icons } from '../constants';
 import * as Animatable from "react-native-animatable";
 import { useEvent } from 'expo';
-import { VideoView, useVideoPlayer } from "expo-video"; 
+import { VideoView, useVideoPlayer } from "expo-video";
+import { ResizeMode, Video } from "expo-av"; 
 
 const zoomIn = {
   0: {
@@ -26,7 +27,7 @@ const zoomOut = {
 const TrendingItem = ({ activeItem, item }) => {
   const [play, setPlay] = useState(false);
   
-  const [videoUrl, setVideoUrl] = useState(null);
+  {/*const [videoUrl, setVideoUrl] = useState(null);
   
   const player = useVideoPlayer(videoUrl, (player) => {
     player.loop = false;
@@ -41,15 +42,21 @@ const TrendingItem = ({ activeItem, item }) => {
   const { isPlaying } = useEvent(player, 'playingChange', { 
     isPlaying: player.playing, 
   });
-
+*/}
   return (
     <Animatable.View className="mr-5" animation={activeItem === item.$id ? zoomIn : zoomOut} duration={250}>
-      {play && videoUrl ? (
-        <VideoView
+      {play ? (
+        <Video
           style={styles.video}
-          player={player}
-          allowsFullscreen
-          allowsPictureInPicture
+          source={{ uri: item.video }}
+          resizeMode={ResizeMode.CONTAIN}
+          useNativeControls
+          shouldPlay
+          onPlaybackStatusUpdate={(status) => {
+            if (status.didJustFinish) {
+              setPlay(false);
+            }
+          }}
         />
       ) : (
           <TouchableOpacity 
@@ -57,7 +64,7 @@ const TrendingItem = ({ activeItem, item }) => {
             activeOpacity={0.7}
             onPress={() => {
               setPlay(true); 
-              setVideoUrl({uri: `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4`})
+              //setVideoUrl({uri: `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4`})
             }}
           >
             <ImageBackground 
