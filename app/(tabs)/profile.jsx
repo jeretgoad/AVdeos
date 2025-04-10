@@ -1,28 +1,25 @@
-import { View, Text, FlatList } from 'react-native'
-import { useEffect, useState } from 'react'
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import SearchInput from '../../components/SearchInput';
 import EmptyState from '../../components/EmptyState';
-import { searchPosts } from '../../lib/appwrite';
+import { getUserPosts, signOut } from '../../lib/appwrite';
 import useAppwrite from '../../lib/useAppwrite';
 import VideoCard from '../../components/VideoCard';
-import { useLocalSearchParams } from 'expo-router';
+import { useGlobalContext } from '../../context/GlobalProvider';
+import { icons } from '../../constants';
+import InfoBox from '../../components/InfoBox';
+import { router } from 'expo-router';
 
 const Profile = () => {
-  const { query } = useLocalSearchParams();
-  const { data: posts, refetch } = useAppwrite(() => searchPosts(query));
+  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+  const { data: posts } = useAppwrite(() => getUserPosts(user.$id));
 
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    refetch();
-  }, [query]);
-
-  // one flatlist
-  // with list header
-  // and horizontal flatlist
-
-  //  we cannot do that with just scrollview as there's both horizontal and vertical scroll (two flat lists, within trending)
+  const logout = async () => {
+    await signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+    
+    router.replace('/sign-in');
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -34,15 +31,49 @@ const Profile = () => {
         renderItem={({ item }) => (
           <VideoCard 
             video={item}
-          />
+          /> 
         )}
         ListHeaderComponent={() => (
-          <View className="flex my-6 px-4">
-            <Text className="font-pmedium text-sm text-gray-100">Search Results</Text>
-            <Text className="text-2xl font-psemibold text-white">{query}</Text>
-            <View className="mt-6 mb-8">
-              <SearchInput initialQuery={query} />
-            </View>                      
+          <View className="w-full flex justify-center items-center mt-6 mb-12 px-4">
+            <TouchableOpacity 
+              className="flex w-full items-end mb-10" 
+              onPress={logout}
+            >
+              <Image 
+                source={icons.logout}
+                resizeMode='contain'
+                className="w-6 h-6"
+              />
+            </TouchableOpacity>
+
+            <View className="flex w-16 h-16 border border-secondary rounded-lg justify-center items-center">
+              <Image 
+                source={{ uri: user?.avatar }} 
+                className="w-[90%] h-[90%] rounded-lg"
+                resizeMode='cover'
+              />
+            </View>
+
+            <InfoBox 
+              title={user?.username}
+              containerStyles='mt-5'
+              titleStyles='text-lg'
+            />
+
+            <View className="mt-5 flex flex-row">
+              <InfoBox 
+                title={posts.length || 0}
+                subtitle="Posts"
+                titleStyles='text-xl'
+                containerStyles='mr-10'
+              />
+              
+              <InfoBox 
+                title="1.2k"
+                subtitle="Followers"
+                titleStyles='text-xl'
+              />
+            </View>
           </View>
         )}
         ListEmptyComponent={() => (
