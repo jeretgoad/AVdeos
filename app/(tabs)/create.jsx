@@ -5,10 +5,10 @@ import FormField from '../../components/FormField'
 import CustomButton from '../../components/CustomButton'
 import { Video, ResizeMode } from 'expo-av'
 import { icons } from '../../constants'
-import * as DocumentPicker from 'expo-document-picker'
 import { router } from 'expo-router'
 import { createVideo } from '../../lib/appwrite'
 import { useGlobalContext } from '../../context/GlobalProvider'
+import * as ImagePicker from 'expo-image-picker';
 
 const Create = () => {
   const { user } = useGlobalContext();
@@ -21,11 +21,12 @@ const Create = () => {
   });
 
   const openPicker = async (selectType) => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: selectType === 'image' 
-      ? ['image/png', 'image/jpg', 'image/jpeg']
-      : ['video/mp4', 'video/gif']
-    })
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: selectType === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
     if(!result.canceled) {
       if(selectType === 'image') {
