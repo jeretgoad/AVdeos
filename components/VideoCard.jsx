@@ -1,7 +1,6 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { icons } from '../constants'
-import { VideoView, useVideoPlayer } from "expo-video"; 
 import { ResizeMode, Video } from "expo-av"; 
 
 const VideoCard = ({ video: {title, thumbnail, video, creator: { username, avatar }} }) => {

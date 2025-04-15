@@ -22,8 +22,7 @@ const Create = () => {
 
   const openPicker = async (selectType) => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: selectType === 'images' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
+      mediaTypes: selectType === 'image' ? ImagePicker.MediaTypeOptions.Images : ImagePicker.MediaTypeOptions.Videos,
       aspect: [4, 3],
       quality: 1,
     });
@@ -44,7 +43,7 @@ const Create = () => {
     }
 
     setUploading(true);
-
+    console.log("form info: " + form.prompt + " : " + form.title + " : " + form.thumbnail + " : " + form.video);
     try {
       await createVideo({
         ...form, userId: user.$id 
@@ -54,7 +53,7 @@ const Create = () => {
       
       router.push('/home');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Error message', error.message);
     } finally {
       setForm({
         title: '',
